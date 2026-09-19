@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sovereign_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sovereign_db}
+      POSTGRES_USER: ${POSTGRES_USER:-sovereign_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sovereign_secure_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - sovereign_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sovereign_admin} -d ${POSTGRES_DB:-sovereign_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sovereign_backend
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+      - media_data:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-sovereign-workbench-change-in-production-secret-key-sih26117}
+      - DJANGO_DEBUG=${DJANGO_DEBUG:-True}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0,backend}
+      - USE_SQLITE=False
+      - POSTGRES_DB=${POSTGRES_DB:-sovereign_db}
+      - POSTGRES_USER=${POSTGRES_USER:-sovereign_admin}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sovereign_secure_pass}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - AIR_GAP_MODE=${AIR_GAP_MODE:-True}
+      - ALLOW_EXTERNAL_EGRESS=${ALLOW_EXTERNAL_EGRESS:-False}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sovereign_net
+
+networks:
+  sovereign_net:
+    driver: bridge
+    # For strict air-gapped simulation, internal: true can be uncommented
+    # internal: true
+
+volumes:
+  postgres_data:
+  media_data:

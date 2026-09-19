@@ -1,0 +1,411 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sovereign On-Premise Agentic AI Workbench | SIH26117</title>
+  <link rel="stylesheet" href="{% static 'workbench/style.css' %}">
+</head>
+<body>
+
+  <!-- Top Header HUD -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-logo">&#9881;</div>
+      <div class="brand-title">
+        <h1>SOVEREIGN AI WORKBENCH</h1>
+        <p>SIH26117 &bull; Confidential Industry &bull; Air-Gapped Perimeter</p>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Status Pills -->
+    <div class="hud-telemetry">
+      <div class="telemetry-pill">
+        <span class="beacon green"></span>
+        <span id="hudAirGapStatus">AIR-GAP: ENFORCED</span>
+      </div>
+      <div class="telemetry-pill">
+        <span class="beacon green"></span>
+        <span id="hudEgressStatus">EXTERNAL EGRESS: 0</span>
+      </div>
+      <div class="telemetry-pill">
+        <span id="hudDbStatus">DB: CONNECTED</span>
+      </div>
+      <div class="telemetry-pill">
+        <span id="hudGuardStatus">GUARD: ENFORCED</span>
+      </div>
+    </div>
+
+    <!-- User & Role Controls -->
+    <div class="user-controls">
+      <div class="role-switcher-box">
+        <label for="roleSelect">ROLE:</label>
+        <select id="roleSelect">
+          <option value="Admin">Admin (Lead Architect)</option>
+          <option value="Engineer">Engineer (Vikram - Aero/CAD)</option>
+          <option value="Analyst">Analyst (Priya - Telemetry)</option>
+          <option value="Operator">Operator (Arun - Supervisor)</option>
+        </select>
+      </div>
+      <span id="currentRoleBadge" class="tag cyan">Admin</span>
+    </div>
+  </header>
+
+  <!-- Main Workspace Container -->
+  <main class="app-container">
+    
+    <!-- Tab Navigation -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="overview">
+        <span>&#128202;</span> Workbench Overview
+      </button>
+      <button class="tab-btn" data-tab="vault">
+        <span>&#128193;</span> Document Vault
+      </button>
+      <button class="tab-btn" data-tab="models">
+        <span>&#129302;</span> Local AI Models
+      </button>
+      <button class="tab-btn" data-tab="tools">
+        <span>&#128295;</span> Industrial Tools
+      </button>
+      <button class="tab-btn" data-tab="knowledge">
+        <span>&#128218;</span> Knowledge Bases
+      </button>
+      <button class="tab-btn" data-tab="agent">
+        <span>&#9889;</span> Sovereign Agent Dispatch
+      </button>
+      <button class="tab-btn" data-tab="receipts">
+        <span>&#128272;</span> Sovereignty Receipts
+      </button>
+      <button class="tab-btn" data-tab="audit">
+        <span>&#128220;</span> Compliance Audit Trail
+      </button>
+    </nav>
+
+    <!-- TAB 1: OVERVIEW -->
+    <section id="tab-overview" class="tab-content active">
+      <div class="grid-cards">
+        <div class="metric-card">
+          <div class="metric-label">Confidential Documents</div>
+          <div class="metric-value" id="metricDocs">-</div>
+          <div class="metric-sub">Vault Blueprints & Schematics</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Agent Tasks Dispatched</div>
+          <div class="metric-value" id="metricTasks">-</div>
+          <div class="metric-sub">Air-Gapped Autonomous Runs</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Registered AI Models</div>
+          <div class="metric-value" id="metricModels">-</div>
+          <div class="metric-sub">Local LLMs, Vision & Embeddings</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Sovereignty Receipts</div>
+          <div class="metric-value" id="metricReceipts">-</div>
+          <div class="metric-sub">Cryptographically Sealed Proofs</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Audit Logs Recorded</div>
+          <div class="metric-value" id="metricAudits">-</div>
+          <div class="metric-sub">Immutable Regulatory Log</div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 1.5rem;">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128737; Zero-Egress Air-Gap Architecture Guarantee</div>
+            <div class="panel-desc">All prompt vectors, CAD blueprints, and sensor telemetry remain strictly confined to the local on-premise hardware perimeter.</div>
+          </div>
+          <span class="tag green">&#10004; SOVEREIGN LOCAL ENFORCED</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <div>
+            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-cyan);">Security & Sovereignty Controls:</h4>
+            <ul style="font-size: 0.825rem; color: var(--text-secondary); line-height: 1.8; padding-left: 1.25rem;">
+              <li><strong>Zero Cloud Dependency:</strong> No data is ever transmitted to OpenAI, Anthropic, or external APIs.</li>
+              <li><strong>Pluggable Adapters:</strong> Modular abstraction for local Ollama, vLLM, and zero-GPU mock adapters.</li>
+              <li><strong>SHA-256 Tamper Evident Proof:</strong> Every workflow execution yields an immutable cryptographic receipt.</li>
+              <li><strong>Industrial RBAC:</strong> 4-tier access control (Admin &bull; Engineer &bull; Analyst &bull; Operator).</li>
+            </ul>
+          </div>
+          <div>
+            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-cyan);">Live System Diagnostics Console:</h4>
+            <div id="terminalOutput" class="terminal-box">Ready for local diagnostic requests. Click "Ping Local Diagnostic" under the Local AI Models tab to test local inference.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: DOCUMENT VAULT -->
+    <section id="tab-vault" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128193; Ingest Confidential Blueprint / Document</div>
+            <div class="panel-desc">Upload engineering blueprints, CAD schematics, or SCADA telemetry into the local encrypted vault.</div>
+          </div>
+        </div>
+        <form id="uploadDocForm" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 240px; margin-bottom: 0;">
+            <label for="docNameInput">Document Title / Classification:</label>
+            <input type="text" id="docNameInput" class="form-control" placeholder="e.g. Reactor Coolant Valve Assembly Rev 2">
+          </div>
+          <div class="form-group" style="flex: 1; min-width: 240px; margin-bottom: 0;">
+            <label for="docFileInput">Select Vault File (DXF, PDF, CSV, STEP):</label>
+            <input type="file" id="docFileInput" class="form-control" style="padding: 0.45rem;">
+          </div>
+          <button type="submit" class="btn btn-primary" style="height: 40px;">
+            &#128274; Ingest to Vault
+          </button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">&#128196; Confidential Vault Repository</div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Document Name</th>
+                <th>Extension Type</th>
+                <th>File Size</th>
+                <th>Vault Status</th>
+                <th>Ingested Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="documentsTableBody">
+              <tr><td colspan="5">Loading vault repository...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: LOCAL AI MODELS -->
+    <section id="tab-models" class="tab-content">
+      <div class="panel-header" style="margin-bottom: 1rem;">
+        <div>
+          <div class="panel-title">&#129302; Registered On-Premise Open-Weight Models</div>
+          <div class="panel-desc">Local models running over localhost loopback sockets or zero-GPU mock adapters.</div>
+        </div>
+      </div>
+      <div id="modelsGrid" class="grid-cards">
+        <p>Loading registered local AI models...</p>
+      </div>
+    </section>
+
+    <!-- TAB 4: INDUSTRIAL TOOLS -->
+    <section id="tab-tools" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128295; Industrial Tool Catalog & Access Gatekeeper</div>
+            <div class="panel-desc">Granular authorization matrix defining which engineering tools agents are authorized to execute.</div>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tool Name</th>
+                <th>Required Role</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="toolsTableBody">
+              <tr><td colspan="5">Loading tools catalog...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: AGENT TASK DISPATCH -->
+    <section id="tab-agent" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#9889; Dispatch Sovereign Autonomous Agent Task</div>
+            <div class="panel-desc">Trigger multi-step industrial reasoning with localized models, verified tools, and zero data leakage.</div>
+          </div>
+        </div>
+        <form id="agentTaskForm">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div class="form-group">
+              <label for="taskTypeSelect">Workflow Archetype:</label>
+              <select id="taskTypeSelect" class="form-control">
+                <option value="CONFIDENTIAL_CAD_AUDIT">CONFIDENTIAL_CAD_AUDIT (Stress, FEA &amp; Fracture Risk)</option>
+                <option value="WELD_SEAM_INSPECTION">WELD_SEAM_INSPECTION (Multimodal Porosity Analysis)</option>
+                <option value="SCADA_TELEMETRY_INSPECTION">SCADA_TELEMETRY_INSPECTION (Coolant Pressure Anomalies)</option>
+                <option value="P_AND_ID_SAFETY_CHECK">P_AND_ID_SAFETY_CHECK (Valve Loop Integrity)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="taskFileSelect">Vault Document Context:</label>
+              <select id="taskFileSelect" class="form-control">
+                <option value="">-- No Vault Document Attached --</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="taskKbSelect">&#128218; RAG Knowledge Base (optional — grounds inference with local context):</label>
+            <select id="taskKbSelect" class="form-control">
+              <option value="">-- No Knowledge Base (Direct Inference) --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="taskPromptInput">Operational Prompt / Analysis Instructions:</label>
+            <textarea id="taskPromptInput" class="form-control" rows="3" placeholder="e.g. Analyze turbine rotor weld seam integrity for micro-fractures under 140 bar steam pressure..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            &#9889; Dispatch Sovereign Agent Workflow
+          </button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">&#128421; Real-Time Agent Execution &amp; Sovereignty Seal Terminal</div>
+        </div>
+        <div id="agentExecutionTerminal" style="margin-top: 1.5rem;"></div>
+
+        <!-- Inline Stream Receipt Panel -->
+        <div id="streamReceiptPanel">
+          <h4>&#128274; SOVEREIGNTY RECEIPT — CRYPTOGRAPHIC PROOF OF ZERO-EGRESS</h4>
+          <div class="receipt-field">
+            <span class="receipt-label">Receipt ID:</span>
+            <span class="receipt-value" id="streamReceiptId">--</span>
+          </div>
+          <div class="receipt-field">
+            <span class="receipt-label">SHA-256 Seal:</span>
+            <span class="receipt-value" id="streamReceiptHash">--</span>
+          </div>
+          <div style="margin-top: 0.75rem; display: flex; gap: 0.75rem;">
+            <button class="btn btn-secondary btn-sm" onclick="verifyActiveReceipt(false)">&#128270; Verify Seal</button>
+            <button class="btn btn-danger btn-sm" onclick="verifyActiveReceipt(true)">&#9888; Simulate Tamper</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">&#128340; Recent Sovereign Agent Tasks</div>
+        </div>
+        <div id="tasksHistoryList" class="execution-steps">
+          <p style="color: var(--text-muted);">No task history loaded yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: KNOWLEDGE BASES (RAG) -->
+    <section id="tab-knowledge" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128218; Sovereign Knowledge Bases &amp; RAG Index Control</div>
+            <div class="panel-desc">Index confidential knowledge bases into the local in-memory vector store for RAG-grounded agent inference. All embeddings are computed locally — zero external calls.</div>
+          </div>
+          <span class="tag green">&#10004; LOCAL EMBEDDINGS ONLY</span>
+        </div>
+        <div id="kbList" class="execution-steps">
+          <p style="color: var(--text-muted);">Loading knowledge bases...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: SOVEREIGNTY RECEIPTS & TAMPER PROOF -->
+    <section id="tab-receipts" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128272; Cryptographic Sovereignty Proof & Tamper Terminal</div>
+            <div class="panel-desc">Mathematically verify zero-egress compliance and test tamper detection on execution receipts.</div>
+          </div>
+          <span id="receiptVerifyStatus" class="tag cyan">AWAITING TASK SELECTION</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+          <div>
+            <h4 style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Active Receipt Metadata:</h4>
+            <div style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.825rem; line-height: 2;">
+              <div><strong>Receipt ID:</strong> <span id="receiptIdVal" style="color: var(--accent-cyan);">--</span></div>
+              <div><strong>External Network Requests:</strong> <span id="receiptEgressVal" style="color: var(--status-healthy);">0 (Zero Egress)</span></div>
+              <div><strong>Network Confinement:</strong> <span id="receiptNetVal" style="color: var(--accent-blue);">AIR_GAPPED_LOCAL</span></div>
+              <div style="word-break: break-all;"><strong>SHA-256 Seal:</strong> <span id="receiptHashVal" style="color: #f59e0b;">--</span></div>
+            </div>
+          </div>
+          <div>
+            <h4 style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Cryptographic Audit Actions:</h4>
+            <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
+              <button class="btn btn-primary" onclick="verifyActiveReceipt(false)">
+                &#128270; Verify Cryptographic Seal
+              </button>
+              <button class="btn btn-danger" onclick="verifyActiveReceipt(true)">
+                &#9888; Simulate Unauthorized Tamper
+              </button>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.75rem;">
+              "Simulate Unauthorized Tamper" modifies the execution state (e.g. injecting external egress or altered tool parameters) to demonstrate how the canonical SHA-256 seal immediately detects tampering.
+            </p>
+          </div>
+        </div>
+
+        <div class="panel-header" style="margin-top: 1rem; margin-bottom: 0.5rem;">
+          <div class="panel-title" style="font-size: 0.95rem;">Cryptographic Audit Output</div>
+        </div>
+        <div id="receiptVerifyDetails" class="terminal-box" style="min-height: 140px;">Select or execute an agent task to inspect and audit its cryptographic sovereignty receipt.</div>
+      </div>
+    </section>
+
+    <!-- TAB 7: COMPLIANCE AUDIT TRAIL -->
+    <section id="tab-audit" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128220; Immutable Compliance Audit Trail</div>
+            <div class="panel-desc">Tamper-resistant operational log intercepting all mutating state changes across the workbench.</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="loadAuditLogs()">&#8635; Refresh Audit Log</button>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time (UTC)</th>
+                <th>Operation Action</th>
+                <th>Resource Target</th>
+                <th>HTTP Status</th>
+                <th>Attributed User</th>
+                <th>Client IP</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <tr><td colspan="6">Loading compliance audit entries...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div>
+      <strong>Sovereign On-Premise Agentic AI Workbench</strong> &bull; Problem Statement SIH26117
+    </div>
+    <div>
+      100% Air-Gapped &bull; Zero External Network Egress Verified &bull; SHA-256 Sovereignty Receipts
+    </div>
+  </footer>
+
+  <script src="{% static 'workbench/app.js' %}"></script>
+</body>
+</html>
