@@ -1,0 +1,6 @@
+{
+  "name": "Sovereign AI Workbench",
+  "description": "Sovereign On-Premise Agentic AI Workbench featuring 7-day D3.js agent task telemetry, local LLM registry, air-gapped HNSW vector search, and cryptographic audit receipts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sovereign On-Premise Agentic AI Workbench featuring 7-day D3.js agent task telemetry, local LLM registry, air-gapped HNSW vector search, and cryptographic audit receipts.">
+  <title>Sovereign AI Workbench | SIH26117</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+</head>
+<body>
+
+  <!-- Top Header HUD -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-logo">&#9881;</div>
+      <div class="brand-title">
+        <h1>SOVEREIGN AI WORKBENCH</h1>
+        <p>SIH26117 &bull; Confidential Industry &bull; Air-Gapped Perimeter</p>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Status Pills -->
+    <div class="hud-telemetry">
+      <div class="telemetry-pill">
+        <span class="beacon green"></span>
+        <span id="hudAirGapStatus">AIR-GAP: ENFORCED</span>
+      </div>
+      <div class="telemetry-pill">
+        <span class="beacon green"></span>
+        <span id="hudEgressStatus">EXTERNAL EGRESS: 0</span>
+      </div>
+      <div class="telemetry-pill">
+        <span id="hudDbStatus">DB: CONNECTED</span>
+      </div>
+      <div class="telemetry-pill">
+        <span id="hudGuardStatus">GUARD: ENFORCED</span>
+      </div>
+    </div>
+
+    <!-- User & Role Controls -->
+    <div class="user-controls">
+      <div class="role-switcher-box">
+        <label for="roleSelect">ROLE:</label>
+        <select id="roleSelect">
+          <option value="Admin">Admin (Lead Architect)</option>
+          <option value="Engineer">Engineer (Vikram - Aero/CAD)</option>
+          <option value="Analyst">Analyst (Priya - Telemetry)</option>
+          <option value="Operator">Operator (Arun - Supervisor)</option>
+        </select>
+      </div>
+      <span id="currentRoleBadge" class="tag cyan">Admin</span>
+    </div>
+  </header>
+
+  <!-- Main Workspace Container -->
+  <main class="app-container">
+    
+    <!-- Tab Navigation -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="overview">
+        <span>&#128202;</span> Workbench Overview
+      </button>
+      <button class="tab-btn" data-tab="vault">
+        <span>&#128193;</span> Document Vault
+      </button>
+      <button class="tab-btn" data-tab="models">
+        <span>&#129302;</span> Local AI Models
+      </button>
+      <button class="tab-btn" data-tab="tools">
+        <span>&#128295;</span> Industrial Tools
+      </button>
+      <button class="tab-btn" data-tab="knowledge">
+        <span>&#128218;</span> Knowledge Bases
+      </button>
+      <button class="tab-btn" data-tab="agent">
+        <span>&#9889;</span> Sovereign Agent Dispatch
+      </button>
+      <button class="tab-btn" data-tab="receipts">
+        <span>&#128272;</span> Sovereignty Receipts
+      </button>
+      <button class="tab-btn" data-tab="audit">
+        <span>&#128220;</span> Compliance Audit Trail
+      </button>
+    </nav>
+
+    <!-- TAB 1: OVERVIEW -->
+    <section id="tab-overview" class="tab-content active">
+      <div class="grid-cards">
+        <div class="metric-card">
+          <div class="metric-label">Confidential Documents</div>
+          <div class="metric-value" id="metricDocs">-</div>
+          <div class="metric-sub">Vault Blueprints & Schematics</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Agent Tasks Dispatched</div>
+          <div class="metric-value" id="metricTasks">-</div>
+          <div class="metric-sub">Air-Gapped Autonomous Runs</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Registered AI Models</div>
+          <div class="metric-value" id="metricModels">-</div>
+          <div class="metric-sub">Local LLMs, Vision & Embeddings</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Sovereignty Receipts</div>
+          <div class="metric-value" id="metricReceipts">-</div>
+          <div class="metric-sub">Cryptographically Sealed Proofs</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Audit Logs Recorded</div>
+          <div class="metric-value" id="metricAudits">-</div>
+          <div class="metric-sub">Immutable Regulatory Log</div>
+        </div>
+      </div>
+
+      <!-- 7-DAY AGENT TASK STATUS SUMMARY CHART PANEL (D3.js) -->
+      <div class="panel" style="margin-top: 1.5rem;" id="agentTaskChartPanel">
+        <div class="panel-header" style="flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <div class="panel-title">&#128202; Agent Task Execution Status &bull; Last 7 Days (D3.js)</div>
+            <div class="panel-desc">Temporal telemetry tracking successful autonomous completions (Air-Gapped) versus safety trips and parameter excursion failures.</div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <div class="chart-view-toggle">
+              <button class="chart-toggle-btn active" id="btnChartGrouped" onclick="setChartViewMode('grouped')">Grouped Bars</button>
+              <button class="chart-toggle-btn" id="btnChartStacked" onclick="setChartViewMode('stacked')">Stacked</button>
+              <button class="chart-toggle-btn" id="btnChartTrend" onclick="setChartViewMode('trend')">Trend Area</button>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="refreshTaskChartData()" title="Refresh chart metrics">
+              &#8635; Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI Summary Strip -->
+        <div class="embedding-hud-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); margin-bottom: 1.25rem;">
+          <div class="embedding-hud-card">
+            <div class="embedding-hud-label">7-Day Total Runs</div>
+            <div id="chartKpiTotal" class="embedding-hud-value" style="color: var(--accent-cyan);">-</div>
+          </div>
+          <div class="embedding-hud-card">
+            <div class="embedding-hud-label">Successful Runs</div>
+            <div id="chartKpiSuccess" class="embedding-hud-value" style="color: var(--status-healthy);">-</div>
+          </div>
+          <div class="embedding-hud-card">
+            <div class="embedding-hud-label">Failed / Tripped</div>
+            <div id="chartKpiFailed" class="embedding-hud-value" style="color: var(--status-danger);">-</div>
+          </div>
+          <div class="embedding-hud-card">
+            <div class="embedding-hud-label">Success Rate</div>
+            <div id="chartKpiRate" class="embedding-hud-value" style="color: var(--accent-blue);">-</div>
+          </div>
+          <div class="embedding-hud-card">
+            <div class="embedding-hud-label">Daily Average</div>
+            <div id="chartKpiDailyAvg" class="embedding-hud-value" style="color: var(--accent-indigo);">-</div>
+          </div>
+        </div>
+
+        <!-- Interactive Legend -->
+        <div class="chart-legend-strip">
+          <div class="chart-legend-item">
+            <span class="legend-color-box success"></span>
+            <span class="legend-label">Successful Tasks (Air-Gapped Autonomous)</span>
+            <span id="legendSuccessCount" class="legend-badge green">0</span>
+          </div>
+          <div class="chart-legend-item">
+            <span class="legend-color-box failed"></span>
+            <span class="legend-label">Failed Tasks (Safety Interlock &amp; Excursion Trips)</span>
+            <span id="legendFailedCount" class="legend-badge red">0</span>
+          </div>
+        </div>
+
+        <!-- D3.js SVG Chart Container -->
+        <div class="chart-container-wrapper" id="taskChartContainer">
+          <div id="taskChartSvgWrapper" style="width: 100%; height: 320px; position: relative;">
+            <!-- D3 SVG will be rendered here -->
+          </div>
+          <!-- Custom Interactive Tooltip -->
+          <div id="taskChartTooltip" class="chart-custom-tooltip" style="opacity: 0; display: none;"></div>
+        </div>
+
+        <!-- Day-by-Day Tabular Breakdown -->
+        <div style="margin-top: 1.25rem; overflow-x: auto;">
+          <table class="data-table" style="font-size: 0.78rem;">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Successful Runs</th>
+                <th>Failed Runs</th>
+                <th>Daily Total</th>
+                <th>Success Rate (%)</th>
+                <th>Sovereignty Perimeter</th>
+              </tr>
+            </thead>
+            <tbody id="chartTableBody">
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading 7-day task distribution...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 1.5rem;">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128737; Zero-Egress Air-Gap Architecture Guarantee</div>
+            <div class="panel-desc">All prompt vectors, CAD blueprints, and sensor telemetry remain strictly confined to the local on-premise hardware perimeter.</div>
+          </div>
+          <span class="tag green">&#10004; SOVEREIGN LOCAL ENFORCED</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <div>
+            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-cyan);">Security & Sovereignty Controls:</h4>
+            <ul style="font-size: 0.825rem; color: var(--text-secondary); line-height: 1.8; padding-left: 1.25rem;">
+              <li><strong>Zero Cloud Dependency:</strong> No data is ever transmitted to OpenAI, Anthropic, or external APIs.</li>
+              <li><strong>Pluggable Adapters:</strong> Modular abstraction for local Ollama, vLLM, and zero-GPU mock adapters.</li>
+              <li><strong>SHA-256 Tamper Evident Proof:</strong> Every workflow execution yields an immutable cryptographic receipt.</li>
+              <li><strong>Industrial RBAC:</strong> 4-tier access control (Admin &bull; Engineer &bull; Analyst &bull; Operator).</li>
+            </ul>
+          </div>
+          <div>
+            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-cyan);">Live System Diagnostics Console:</h4>
+            <div id="terminalOutput" class="terminal-box">Ready for local diagnostic requests. Click "Ping Local Diagnostic" under the Local AI Models tab to test local inference.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: DOCUMENT VAULT -->
+    <section id="tab-vault" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128193; Ingest Confidential Blueprint / Document</div>
+            <div class="panel-desc">Upload engineering blueprints, CAD schematics, or SCADA telemetry into the local encrypted vault.</div>
+          </div>
+        </div>
+        <form id="uploadDocForm" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 240px; margin-bottom: 0;">
+            <label for="docNameInput">Document Title / Classification:</label>
+            <input type="text" id="docNameInput" class="form-control" placeholder="e.g. Reactor Coolant Valve Assembly Rev 2">
+          </div>
+          <div class="form-group" style="flex: 1; min-width: 240px; margin-bottom: 0;">
+            <label for="docFileInput">Select Vault File (DXF, PDF, CSV, STEP):</label>
+            <input type="file" id="docFileInput" class="form-control" style="padding: 0.45rem;">
+          </div>
+          <button type="submit" class="btn btn-primary" style="height: 40px;">
+            &#128274; Ingest to Vault
+          </button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">&#128196; Confidential Vault Repository</div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Document Name</th>
+                <th>Extension Type</th>
+                <th>File Size</th>
+                <th>Vault Status</th>
+                <th>Ingested Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="documentsTableBody">
+              <tr><td colspan="5">Loading vault repository...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: LOCAL AI MODELS -->
+    <section id="tab-models" class="tab-content">
+      <!-- TOP HUD: MODEL SYSTEM OVERVIEW -->
+      <div class="panel" style="margin-bottom: 1.25rem;">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#129302; Open-Weight Multimodal &amp; Reasoning LLM Infrastructure</div>
+            <div class="panel-desc">Sovereign model execution runtime decoupled from commercial cloud APIs. All models run on-premise over localhost loopback sockets or zero-GPU deterministic adapters.</div>
+          </div>
+          <span class="tag green">&#128274; 100% AIR-GAPPED &bull; ZERO CLOUD EGRESS</span>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="embedding-hud-grid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin-bottom: 1rem;">
+          <div class="embedding-hud-card">
+            <div class="embedding-hud-label">Registered Models</div>
+            <div id="hudTotalModels" class="embedding-hud-value" style="color: var(--accent-cyan);">7 Active</div>
+          </div>
+          <div class="embedding-hud-card">
+            <div class="embedding-hud-label">Initialized &amp; Ready</div>
+            <div id="hudOnlineModels" class="embedding-hud-value" style="color: var(--status-healthy);">7 / 7 Online</div>
+          </div>
+          <div class="embedding-hud-card">
+            <div class="embedding-hud-label">Total Allocated VRAM</div>
+            <div id="hudTotalVram" class="embedding-hud-value" style="color: var(--accent-blue);">82.5 GB / 96 GB</div>
+          </div>
+          <div class="embedding-hud-card">
+            <div class="embedding-hud-label">Avg Inference Latency</div>
+            <div id="hudAvgLatency" class="embedding-hud-value" style="color: var(--accent-indigo);">16.2 ms</div>
+          </div>
+          <div class="embedding-hud-card">
+            <div class="embedding-hud-label">Sovereign Compliance</div>
+            <div class="embedding-hud-value" style="color: var(--status-healthy);">100% Enforced</div>
+          </div>
+        </div>
+
+        <!-- Global Control Action Bar -->
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+          <button id="btnInitAllModels" class="btn btn-primary" onclick="initializeAllModels()">
+            &#9889; Initialize All Models (Warmup &amp; Verify)
+          </button>
+          <button class="btn btn-secondary" onclick="loadModels()">
+            &#8635; Refresh Model Telemetry
+          </button>
+          <button class="btn btn-secondary" onclick="toggleHardwareBenchmarkModal()">
+            &#128202; Hardware &amp; VRAM Matrix
+          </button>
+          <span id="modelInitStatusMsg" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono);"></span>
+        </div>
+
+        <!-- Batch Initialization Progress Container -->
+        <div id="modelsInitProgressContainer" style="display: none; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+          <div class="progress-track-container">
+            <div class="progress-header-row">
+              <span id="modelsInitPhaseLabel" style="color: var(--accent-cyan); font-weight: 600;">Phase: Initializing Model Runtimes</span>
+              <span id="modelsInitProgressPct" style="color: var(--accent-cyan); font-weight: 700;">0%</span>
+            </div>
+            <div class="progress-track-bar">
+              <div id="modelsInitProgressBar" class="progress-fill-bar"></div>
+            </div>
+          </div>
+          <div id="modelsInitLiveTerminal" class="terminal-box" style="min-height: 100px; max-height: 180px; font-size: 0.78rem; margin-top: 0.75rem;">
+            Awaiting model initialization...
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE MODEL TEST PLAYGROUND -->
+      <div class="panel" style="margin-bottom: 1.25rem;">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#129514; Interactive Sovereign Model Diagnostic Playground</div>
+            <div class="panel-desc">Dispatch single-prompt test inferences to verify model reasoning, multimodal perception, and air-gap confinement.</div>
+          </div>
+          <span class="tag cyan">INTERACTIVE TEST HARNESS</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label class="form-label" for="testModelSelect">&#129302; Select Model to Test</label>
+            <select id="testModelSelect" class="form-control" onchange="onTestModelChange()">
+              <option value="deepseek-r1-70b">&#128274; DeepSeek-R1-Distill-70B (Deep Reasoning &amp; CoT Logic)</option>
+              <option value="llama-3-3-70b">&#128274; Llama-3.3-70B-Industrial (Agent Orchestration &amp; Long-Context)</option>
+              <option value="qwen-2-5-vl">&#128274; Qwen-2.5-VL-72B-Industrial (1344x1344 Vision &amp; CAD Parsing)</option>
+              <option value="mistral-small-3">&#128274; Mistral-Small-3-24B-AirGapped (Fast Tactical Edge Triage)</option>
+              <option value="qwen-2-5-coder">&#128274; Qwen-2.5-Coder-32B-Industrial (SCADA / PLC Automation Code)</option>
+              <option value="bge-large">&#128274; BGE-Large-EN-v1.5 (1024-D Dense Vector Embedder)</option>
+              <option value="gemini-3-8-flash">&#9889; Gemini 3.8 Flash (Frontier Cross-Domain Engine)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="testTemplateSelect">&#128203; Quick Industrial Test Presets</label>
+            <select id="testTemplateSelect" class="form-control" onchange="applyTestPromptPreset()">
+              <option value="">-- Choose an industrial prompt preset --</option>
+              <option value="asme_stress">⚙️ ASME Section III NB-3200 FEA Casing Stress Audit</option>
+              <option value="iso_weld">🔬 ISO 17640 Volumetric Weld Porosity &amp; Lack of Fusion</option>
+              <option value="scada_telemetry">📈 IEEE 1459 SCADA Thermodynamic Coolant Log Triage</option>
+              <option value="sil3_interlock">🛡️ IEC 61508 SIL-3 180ms Emergency Bypass Interlock</option>
+              <option value="dense_vector">🧬 1024-D Vector Hypersphere Semantic Embedding</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="testPromptInput">&#9997; Test Prompt / Engineering Query</label>
+          <textarea id="testPromptInput" class="form-control" rows="3" style="font-family: var(--font-mono); font-size: 0.8rem;"
+                    placeholder="Enter an operational prompt to execute on the selected local model..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+          <button id="btnRunModelTest" class="btn btn-primary" onclick="runModelTestInference()">
+            &#129514; Execute Test Inference
+          </button>
+          <button class="btn btn-secondary" onclick="pingSelectedModel()">
+            &#9889; Ping Loopback Socket
+          </button>
+          <span id="testInferenceTelemetry" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono);"></span>
+        </div>
+
+        <!-- Test Output Terminal -->
+        <div class="form-group" style="margin-top: 1rem;">
+          <label class="form-label">&#128187; Model Diagnostic Output &amp; Token Stream</label>
+          <div id="testOutputTerminal" class="terminal-box" style="min-height: 140px; max-height: 280px; font-size: 0.8rem;">
+            Ready. Select a model and click "Execute Test Inference".
+          </div>
+        </div>
+      </div>
+
+      <!-- REGISTERED MODEL CARDS GRID -->
+      <div class="panel-header" style="margin-bottom: 1rem;">
+        <div>
+          <div class="panel-title">&#128196; Detailed Model Catalog &amp; Architecture Matrix</div>
+          <div class="panel-desc">Inspect per-model quantization, context windows, tensor parallelism, and specialized domain capabilities.</div>
+        </div>
+      </div>
+      <div id="modelsGrid" class="grid-cards">
+        <p>Loading registered local AI models...</p>
+      </div>
+    </section>
+
+    <!-- TAB 4: INDUSTRIAL TOOLS -->
+    <section id="tab-tools" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128295; Industrial Tool Catalog &amp; Access Gatekeeper</div>
+            <div class="panel-desc">Granular authorization matrix defining which engineering tools agents are authorized to execute.</div>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tool Name</th>
+                <th>Required Role</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="toolsTableBody">
+              <tr><td colspan="5">Loading tools catalog...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: AGENT TASK DISPATCH -->
+    <section id="tab-agent" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#9889; Dispatch Sovereign Autonomous Agent Task</div>
+            <div class="panel-desc">Trigger multi-step industrial reasoning with localized models, verified tools, and zero data leakage.</div>
+          </div>
+        </div>
+        <form id="agentTaskForm">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div class="form-group">
+              <label for="taskTypeSelect">Workflow Archetype:</label>
+              <select id="taskTypeSelect" class="form-control">
+                <option value="CONFIDENTIAL_CAD_AUDIT">CONFIDENTIAL_CAD_AUDIT (Stress, FEA &amp; Fracture Risk)</option>
+                <option value="WELD_SEAM_INSPECTION">WELD_SEAM_INSPECTION (Multimodal Porosity Analysis)</option>
+                <option value="SCADA_TELEMETRY_INSPECTION">SCADA_TELEMETRY_INSPECTION (Coolant Pressure Anomalies)</option>
+                <option value="P_AND_ID_SAFETY_CHECK">P_AND_ID_SAFETY_CHECK (Valve Loop Integrity)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="taskModelSelect">&#129302; Inference Engine / AI Model:</label>
+              <select id="taskModelSelect" class="form-control">
+                <option value="deepseek-r1-70b">&#128274; DeepSeek-R1-Distill-70B (Deep Reasoning &amp; CoT Logic)</option>
+                <option value="llama-3-3-70b">&#128274; Llama-3.3-70B-Industrial (Agent Orchestration &amp; Long-Context)</option>
+                <option value="qwen-2-5-vl">&#128274; Qwen-2.5-VL-72B-Industrial (1344x1344 Vision &amp; CAD Parsing)</option>
+                <option value="mistral-small-3">&#128274; Mistral-Small-3-24B-AirGapped (Fast Tactical Edge Triage)</option>
+                <option value="qwen-2-5-coder">&#128274; Qwen-2.5-Coder-32B-Industrial (SCADA / PLC Automation Code)</option>
+                <option value="bge-large">&#128274; BGE-Large-EN-v1.5 (1024-D Dense Vector Embedder)</option>
+                <option value="gemini-3-8-flash">&#9889; Gemini 3.8 Flash (Frontier Cross-Domain Engine)</option>
+              </select>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div class="form-group">
+              <label for="taskFileSelect">Vault Document Context:</label>
+              <select id="taskFileSelect" class="form-control">
+                <option value="">-- No Vault Document Attached --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="taskKbSelect">&#128218; RAG Knowledge Base (Grounding):</label>
+              <select id="taskKbSelect" class="form-control">
+                <option value="">-- No Knowledge Base (Direct Inference) --</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="taskPromptInput">Operational Prompt / Analysis Instructions:</label>
+            <textarea id="taskPromptInput" class="form-control" rows="3" placeholder="e.g. Analyze turbine rotor weld seam integrity for micro-fractures under 140 bar steam pressure..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            &#9889; Dispatch Sovereign Agent Workflow
+          </button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">&#128421; Real-Time Agent Execution &amp; Sovereignty Seal Terminal</div>
+        </div>
+        <div id="agentExecutionTerminal" style="margin-top: 1.5rem;"></div>
+
+        <!-- Inline Stream Receipt Panel -->
+        <div id="streamReceiptPanel">
+          <h4>&#128274; SOVEREIGNTY RECEIPT — CRYPTOGRAPHIC PROOF OF ZERO-EGRESS</h4>
+          <div class="receipt-field">
+            <span class="receipt-label">Receipt ID:</span>
+            <span class="receipt-value" id="streamReceiptId">--</span>
+          </div>
+          <div class="receipt-field">
+            <span class="receipt-label">SHA-256 Seal:</span>
+            <span class="receipt-value" id="streamReceiptHash">--</span>
+          </div>
+          <div style="margin-top: 0.75rem; display: flex; gap: 0.75rem;">
+            <button class="btn btn-secondary btn-sm" onclick="verifyActiveReceipt(false)">&#128270; Verify Seal</button>
+            <button class="btn btn-danger btn-sm" onclick="verifyActiveReceipt(true)">&#9888; Simulate Tamper</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">&#128340; Recent Sovereign Agent Tasks</div>
+        </div>
+        <div id="tasksHistoryList" class="execution-steps">
+          <p style="color: var(--text-muted);">No task history loaded yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: KNOWLEDGE BASES (RAG) -->
+    <section id="tab-knowledge" class="tab-content">
+      <!-- PANEL 1: DOCUMENT VAULT INGESTION INTO HNSW VECTOR DB -->
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#9889; Document Vault Ingestion &amp; HNSW Embedding Engine</div>
+            <div class="panel-desc">Select an engineering blueprint, telemetry log, or standard from the confidential vault to chunk, embed, and index into the local vector database.</div>
+          </div>
+          <span class="tag cyan">ZERO-EGRESS &bull; 128-DIM EMBEDDER</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label class="form-label" for="ingestVaultDocSelect">&#128196; Select Document from Vault</label>
+            <select id="ingestVaultDocSelect" class="form-control" onchange="onIngestDocChange()">
+              <option value="">-- Select a vault document --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="ingestTargetKbSelect">&#128218; Target Knowledge Base</label>
+            <select id="ingestTargetKbSelect" class="form-control">
+              <option value="">-- Select target knowledge base --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="ingestChunkSize">&#9986; Chunk Size (chars)</label>
+            <input type="number" id="ingestChunkSize" class="form-control" value="250" min="50" max="2000">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="ingestChunkOverlap">&#8644; Chunk Overlap (chars)</label>
+            <input type="number" id="ingestChunkOverlap" class="form-control" value="40" min="0" max="500">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <label class="form-label" for="ingestDocPreview" style="margin-bottom: 0;">&#128065; Document Context Preview / Content Buffer</label>
+            <span id="ingestDocCharCount" style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">0 characters</span>
+          </div>
+          <textarea id="ingestDocPreview" class="form-control" rows="3" style="font-family: var(--font-mono); font-size: 0.8rem;" 
+                    placeholder="Select a document from the vault to inspect or customize content prior to HNSW vector embedding..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+          <button id="btnStartIngest" class="btn btn-primary" onclick="startVaultDocumentIngestion()">
+            &#9889; Ingest &amp; Compute HNSW Vectors
+          </button>
+          <button class="btn btn-secondary" onclick="loadDocuments(); populateIngestDropdowns();">
+            &#8635; Refresh Vault Docs
+          </button>
+          <span id="ingestStatusMsg" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono);"></span>
+        </div>
+
+        <!-- EMBEDDING PROGRESS TRACKER -->
+        <div id="ingestProgressContainer" style="display: none; margin-top: 1.25rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+          <div class="progress-track-container">
+            <div class="progress-header-row">
+              <span id="ingestPhaseLabel" style="color: var(--accent-cyan); font-weight: 600;">Phase: Initializing</span>
+              <span id="ingestProgressPct" style="color: var(--accent-cyan); font-weight: 700;">0%</span>
+            </div>
+            <div class="progress-track-bar">
+              <div id="ingestProgressBar" class="progress-fill-bar"></div>
+            </div>
+
+            <!-- 5 Phase Step Indicators -->
+            <div class="phase-steps-container">
+              <div id="phaseStepExtraction" class="phase-step-item">
+                <span>1.</span> <span>&#128196; Vault Extraction</span>
+              </div>
+              <div id="phaseStepChunking" class="phase-step-item">
+                <span>2.</span> <span>&#9986; Sliding Chunking</span>
+              </div>
+              <div id="phaseStepEmbedding" class="phase-step-item">
+                <span>3.</span> <span>&#129516; 128-Dim Embeddings</span>
+              </div>
+              <div id="phaseStepHnsw" class="phase-step-item">
+                <span>4.</span> <span>&#128376; HNSW Graph Linkage</span>
+              </div>
+              <div id="phaseStepComplete" class="phase-step-item">
+                <span>5.</span> <span>&#128274; Air-Gap Verified</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Embedding HUD -->
+          <div class="embedding-hud-grid">
+            <div class="embedding-hud-card">
+              <div class="embedding-hud-label">Chunks Created</div>
+              <div id="ingestHudChunks" class="embedding-hud-value">0</div>
+            </div>
+            <div class="embedding-hud-card">
+              <div class="embedding-hud-label">Vector Dimension</div>
+              <div class="embedding-hud-value" style="color: var(--accent-blue);">128-D</div>
+            </div>
+            <div class="embedding-hud-card">
+              <div class="embedding-hud-label">Compute Latency</div>
+              <div id="ingestHudTime" class="embedding-hud-value">0.0 ms</div>
+            </div>
+            <div class="embedding-hud-card">
+              <div class="embedding-hud-label">Network Egress</div>
+              <div class="embedding-hud-value" style="color: var(--status-healthy);">0 B (100% Local)</div>
+            </div>
+          </div>
+
+          <!-- Live Ingestion Terminal Log -->
+          <div class="form-group" style="margin-top: 0.75rem;">
+            <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+              <span>&#128187; Real-Time Vector Computation Log</span>
+              <button class="btn btn-secondary btn-sm" id="btnTestIngestedInSandbox" style="display: none;" onclick="quickTestIngested()">
+                &#9889; Test in Query Sandbox &rarr;
+              </button>
+            </label>
+            <div id="ingestLiveTerminal" class="terminal-box" style="min-height: 120px; max-height: 220px; font-size: 0.78rem;">
+              Awaiting ingestion trigger...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 2: SOVEREIGN KNOWLEDGE BASES & LOCAL HNSW INDEX -->
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128218; Sovereign Knowledge Bases &amp; Local HNSW Vector Index</div>
+            <div class="panel-desc">All document chunks are embedded in 128-dimensional dense vectors and indexed into a local Hierarchical Navigable Small World (HNSW) graph with zero external API egress.</div>
+          </div>
+          <span class="tag green">&#10004; ON-PREMISE HNSW VECTOR DB</span>
+        </div>
+        <div id="kbList" class="execution-steps">
+          <p style="color: var(--text-muted);">Loading knowledge bases...</p>
+        </div>
+      </div>
+
+      <!-- PANEL 3: VECTOR QUERY SANDBOX -->
+      <div class="panel" style="margin-top: 1.5rem;">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128269; Local Vector Database Query Sandbox</div>
+            <div class="panel-desc">Execute real-time vector similarity search against the local HNSW graph index with instant Cosine similarity ranking.</div>
+          </div>
+          <span class="tag cyan">COSINE METRIC &bull; 128-DIM</span>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <input type="text" id="vectorSearchInput" class="form-control" style="flex: 1; min-width: 280px;" 
+                 placeholder="e.g. allowable Von Mises stress ASME Section III or ISO 17640 porosity limit">
+          <button class="btn btn-primary" onclick="testVectorSearch()">
+            &#9889; Run Local Vector Query
+          </button>
+        </div>
+        <div id="vectorSearchResults" class="terminal-box" style="min-height: 120px;">Enter an engineering query above to test nearest-neighbor semantic vector retrieval in the on-premise vector database.</div>
+      </div>
+    </section>
+
+    <!-- TAB 6: SOVEREIGNTY RECEIPTS & TAMPER PROOF -->
+    <section id="tab-receipts" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128272; Cryptographic Sovereignty Proof & Tamper Terminal</div>
+            <div class="panel-desc">Mathematically verify zero-egress compliance and test tamper detection on execution receipts.</div>
+          </div>
+          <span id="receiptVerifyStatus" class="tag cyan">AWAITING TASK SELECTION</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+          <div>
+            <h4 style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Active Receipt Metadata:</h4>
+            <div style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.825rem; line-height: 2;">
+              <div><strong>Receipt ID:</strong> <span id="receiptIdVal" style="color: var(--accent-cyan);">--</span></div>
+              <div><strong>External Network Requests:</strong> <span id="receiptEgressVal" style="color: var(--status-healthy);">0 (Zero Egress)</span></div>
+              <div><strong>Network Confinement:</strong> <span id="receiptNetVal" style="color: var(--accent-blue);">AIR_GAPPED_LOCAL</span></div>
+              <div style="word-break: break-all;"><strong>SHA-256 Seal:</strong> <span id="receiptHashVal" style="color: #f59e0b;">--</span></div>
+            </div>
+          </div>
+          <div>
+            <h4 style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Cryptographic Audit Actions:</h4>
+            <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
+              <button class="btn btn-primary" onclick="verifyActiveReceipt(false)">
+                &#128270; Verify Cryptographic Seal
+              </button>
+              <button class="btn btn-danger" onclick="verifyActiveReceipt(true)">
+                &#9888; Simulate Unauthorized Tamper
+              </button>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.75rem;">
+              "Simulate Unauthorized Tamper" modifies the execution state (e.g. injecting external egress or altered tool parameters) to demonstrate how the canonical SHA-256 seal immediately detects tampering.
+            </p>
+          </div>
+        </div>
+
+        <div class="panel-header" style="margin-top: 1rem; margin-bottom: 0.5rem;">
+          <div class="panel-title" style="font-size: 0.95rem;">Cryptographic Audit Output</div>
+        </div>
+        <div id="receiptVerifyDetails" class="terminal-box" style="min-height: 140px;">Select or execute an agent task to inspect and audit its cryptographic sovereignty receipt.</div>
+      </div>
+    </section>
+
+    <!-- TAB 7: COMPLIANCE AUDIT TRAIL -->
+    <section id="tab-audit" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">&#128220; Immutable Compliance Audit Trail</div>
+            <div class="panel-desc">Tamper-resistant operational log intercepting all mutating state changes across the workbench.</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="loadAuditLogs()">&#8635; Refresh Audit Log</button>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time (UTC)</th>
+                <th>Operation Action</th>
+                <th>Resource Target</th>
+                <th>HTTP Status</th>
+                <th>Attributed User</th>
+                <th>Client IP</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <tr><td colspan="6">Loading compliance audit entries...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div>
+      <strong>Sovereign On-Premise Agentic AI Workbench</strong> &bull; Problem Statement SIH26117
+    </div>
+    <div>
+      100% Air-Gapped &bull; Zero External Network Egress Verified &bull; SHA-256 Sovereignty Receipts
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
